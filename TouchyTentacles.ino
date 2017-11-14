@@ -32,12 +32,15 @@ void loop(){
   long sensor1 =  cs_4_8.capacitiveSensor(50);
   purplepaint();
  
-  if(sensor1 >= 1000){
+  if(sensor1 >= 1000&&t1count <500){
   addYellowGlitter(80);
+  purplepaint();
   t1count ++;
   }
-  if (t1count >500) {
+  else if (sensor1 >= 1000&&t1count >=500)
+  {
     orangepaint();
+    addBlueGlitter(80);
   }
   
     FastLED.show();
@@ -49,6 +52,15 @@ void addYellowGlitter( fract8 chanceOfGlitter)
 {
   if( random8() < chanceOfGlitter) {
     leds[ random16(NUM_LEDS) ] += CRGB::Yellow;
+  }
+}
+////////////
+
+//////
+void addBlueGlitter( fract8 chanceOfGlitter) 
+{
+  if( random8() < chanceOfGlitter) {
+    leds[ random16(NUM_LEDS) ] += CRGB::Blue;
   }
 }
 ////////////
