@@ -1,100 +1,82 @@
 //Three dangling tentacles of light controlled by three touch sensors. By your powers combined, the tentacles activate! (but subtly and beautifully)
 // Debra Lemak 11/10/17
-#include <FastLED.h>
-#define NUM_LEDS 25
-#define BRIGHTNESS  20
-#define FRAMES_PER_SECOND 60
-#define NUM_LEDS_PER_STRIP 25
-#define ON 1
-#define OFF 0
-CRGB tentacle01[NUM_LEDS_PER_STRIP];
-CRGB tentacle02[NUM_LEDS_PER_STRIP];
-CRGB tentacle03[NUM_LEDS_PER_STRIP];
+#include "FastLED.h"
+#include <CapacitiveSensor.h>
+//https://github.com/PaulStoffregen/CapacitiveSensor
 
+#define NUM_LEDS 25       // number of LEDs in strip - count starts at 0, not 1
+#define DataPin 3        // data pin
+int t1count = 0;
 
-// constants won't change. They're used here to set pin numbers:
-const int touchSensor01 = 8;     // the number of the pushbutton pin
-const int touchSensor02 = 9;     // the number of the pushbutton pin
-const int touchSensor03 = 10;     // the number of the pushbutton pin
+CapacitiveSensor   cs_4_8 = CapacitiveSensor(4,8); // 1M resistor between pins 4 & 8, pin 8 is sensor pin, add a wire and or foil
 
-// variables will change:
+CRGB startColor( CRGB::Red);
+CRGB endColor( CRGB::Blue);
 
-int sensor01Status = OFF;
-int sensor02Status = OFF;
-int sensor03Status = OFF;
+TBlendType blendingType; //tBlendType is a data type like int/char/uint8_t etc., used to choose LINERBLEND and NOBLEND
 
-int ledMode = 0;
+CRGB leds[NUM_LEDS];
 
-void setup() {
-  //Serial.begin(9600); not using Serial because I have found issues with serial messages causing my code not to work, 
-  //some day I'll have more time to debug and figure out why, but for now we'll just turn it off and look away 
-  // initialize the pushbutton pin as an input:
-  pinMode(buttonPin01, INPUT_PULLUP);
-  pinMode(buttonPin02, INPUT_PULLUP);
-  pinMode(buttonPin03, INPUT_PULLUP);
-  FastLED.addLeds<WS2811, 1>(tentacle01, NUM_LEDS_PER_STRIP);
-  FastLED.addLeds<WS2811, 2>(tentacle02, NUM_LEDS_PER_STRIP);
-  FastLED.addLeds<WS2811, 3>(tentacle03, NUM_LEDS_PER_STRIP);
-  FastLED.setBrightness( BRIGHTNESS );
-  FastLED.clear();
+void setup()
+{
+  delay(2000);                                      // saftey first  
+  FastLED.addLeds<WS2811,DataPin,RGB>(leds,NUM_LEDS);   //.setCorrection(CRGB( 255, 255, 240));
+  fill_solid(leds, NUM_LEDS, CRGB(0,0,0));         // fill all black
+  FastLED.show();                                   // show 
+  Serial.begin(115200);                             // monitor speed
+  blendingType = LINEARBLEND;                       // options are LINEARBLEND or NOBLEND - linear is 'cleaner'
+  cs_4_8.set_CS_AutocaL_Millis(0xFFFFFFFF);// turn off autocalibrate on channel 1 - just as an example
 }
 
-/*
- * Main loop
- */
-void loop() {
-  checkInputs();
-  renderEffects();
-  FastLED.show();
-  FastLED.delay(1000/FRAMES_PER_SECOND); 
-}
-
-/**
- * Check our inputs and set the sensor status
- */
-void checkInputs() {
-  // Read pins
-  if (digitalRead(touchSensor01) == LOW) {
-    sensor01Status = ON;
-  } 
-  
-  if (digitalRead(touchSensor02) == LOW) {
-    sensor02Status = ON;
-  } 
-  
-  if (digitalRead(touchSensor03) == LOW) {
-    sensor03Status = ON;
-  } 
-}
-
-/**
- * Handle the button state to render effects
- */
-void renderEffects() {
-    switch (buttonPressed) {
-    case buttonPin01:     
-      rainbowWithGlitter();
-      break;
-    case buttonPin02:     
-      bpm();
-      break;
-    case buttonPin03:     
-      juggle();
-      break;
-    case 0:     
-      break;
+void loop(){
+  long sensor1 =  cs_4_8.capacitiveSensor(50);
+  purplepaint();
+ 
+  if(sensor1 >= 1000){
+  addYellowGlitter(80);
+  t1count ++;
   }
-}
+  if (t1count >500) {
+    orangepaint();
+  }
+  
+    FastLED.show();
+  }
+ 
 
-
-
-
-
-void addGlitter( fract8 chanceOfGlitter) 
+//////
+void addYellowGlitter( fract8 chanceOfGlitter) 
 {
   if( random8() < chanceOfGlitter) {
-    leds[ random16(NUM_LEDS) ] += CRGB::White;
+    leds[ random16(NUM_LEDS) ] += CRGB::Yellow;
   }
 }
+////////////
 
+void purplepaint (){
+    for( int i = 0; i < NUM_LEDS; i++) {
 
+    // First, figure out what 'percentage' of the way along
+    // the strip we are at this particular pixel:
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS-1);
+
+    // Now calculate how much of each color we should blend together
+    // at this particular point along the strip.
+    // 0 = pure 'start color', 255 = pure 'end color'
+    uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
+
+    // Mix up a new color, which is a blend of the start and end colors
+    // Use the blend function to get the right mix for this particular pixel
+    CRGB pixelColor = blend( CRGB::Red, CRGB::Blue, amountOfBlending);
+
+    // set this pixel to the blended color:
+    leds[i] = pixelColor;
+  }}
+
+void orangepaint (){
+    for( int i = 0; i < NUM_LEDS; i++) {
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS-1);
+    uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
+    CRGB pixelColor = blend( CRGB::Red, CRGB::Yellow, amountOfBlending);
+    leds[i] = pixelColor;
+  }}
