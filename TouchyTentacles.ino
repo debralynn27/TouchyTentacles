@@ -56,7 +56,7 @@ void loop(){
  void tentacle1(long sensor1){ 
    if(sensor1 >= 1000){
       purplepaint1();
-      addYellowGlitter1(80);\7777777
+      addYellowGlitter(80);
   }
     else 
       aquapaint1(); 
@@ -65,7 +65,7 @@ void loop(){
   
 void tentacle2(long sensor2){ 
    if(sensor2 >= 1000){
-     // addYellowGlitter(80, tent2leds);
+      addYellowGlitter(80;
       purplepaint2();
   }
     else 
@@ -75,7 +75,7 @@ void tentacle2(long sensor2){
 
    void tentacle3(long sensor3){ 
    if(sensor3 >= 1000){
-   //   addYellowGlitter(80, tent3leds);
+   addYellowGlitter(80);
       purplepaint3();
   }
     else 
@@ -84,10 +84,13 @@ void tentacle2(long sensor2){
   } 
 
 //////
-void addYellowGlitter1( fract8 chanceOfGlitter) 
+
+void addYellowGlitter( fract8 chanceOfGlitter) 
 {
   if( random8() < chanceOfGlitter) {
     tent1leds[ random16(NUM_LEDS_PER_STRIP) ] += CRGB::Yellow;
+    tent2leds[ random16(NUM_LEDS_PER_STRIP) ] += CRGB::Yellow;
+    tent3leds[ random16(NUM_LEDS_PER_STRIP) ] += CRGB::Yellow;
   }
 }
 ////////////
@@ -138,4 +141,4 @@ void aquapaint3 (){
     uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
     CRGB pixelColor = blend( CRGB::Blue, CRGB::Green, amountOfBlending);
     tent3leds[i] = pixelColor;
-  }}77k
+  }}
