@@ -8,6 +8,8 @@
 #define tent1pin 0                 // data pin for tentacle 1 strand of leds
 #define tent2pin 1                 // data pin for tentacle 2 strand of leds
 #define tent3pin 2                 // data pin for tentacle 3 strand of leds
+
+CRGB leds; 
   
 CRGB tent1leds[NUM_LEDS_PER_STRIP];
 CRGB tent2leds[NUM_LEDS_PER_STRIP];
@@ -28,101 +30,112 @@ void setup()
   FastLED.addLeds<WS2811,tent1pin,RGB>(tent1leds,NUM_LEDS_PER_STRIP);   
   FastLED.addLeds<WS2811,tent2pin,RGB>(tent2leds,NUM_LEDS_PER_STRIP);   
   FastLED.addLeds<WS2811,tent3pin,RGB>(tent3leds,NUM_LEDS_PER_STRIP);   
-  fill_solid(tent1leds, NUM_LEDS, CRGB(0,0,0));         // fill all black
-  fill_solid(tent2leds, NUM_LEDS, CRGB(0,0,0));         // fill all black
-  fill_solid(tent3leds, NUM_LEDS, CRGB(0,0,0));         // fill all black
+  fill_solid(tent1leds, NUM_LEDS_PER_STRIP, CRGB(0,0,0));         // fill all black
+  fill_solid(tent2leds, NUM_LEDS_PER_STRIP, CRGB(0,0,0));         // fill all black
+  fill_solid(tent3leds, NUM_LEDS_PER_STRIP, CRGB(0,0,0));         // fill all black
   FastLED.show();                                   // show 
   blendingType = LINEARBLEND;                       // options are LINEARBLEND or NOBLEND - linear is 'cleaner'
-  cs_4_2.set_CS_AutocaL_Millis(0xFFFFFFFF);         // turn off autocalibrate on channel 1 - just as an example
+  //cs_4_6.set_CS_AutocaL_Millis(0xFFFFFFFF);         // turn off autocalibrate on channel 1 - just as an example
+  //cs_4_8.set_CS_AutocaL_Millis(0xFFFFFFFF);         // turn off autocalibrate on channel 1 - just as an example
+  //cs_4_10.set_CS_AutocaL_Millis(0xFFFFFFFF);         // turn off autocalibrate on channel 1 - just as an example
 }
 
 void loop(){
   //check sensors
-  long sensor1 =  cs_4_6.capacitiveSensor(50);
-  long sensor2 =  cs_4_8.capacitiveSensor(50);
-  long sensor3 =  cs_4_10.capacitiveSensor(50);
-  
-  //assign colors to tentacle lights
-  tentacle1();
-  tentacle2();
-  tentacle3();
+  long sensor1 =  cs_4_6.capacitiveSensor(80);
+  long sensor2 =  cs_4_8.capacitiveSensor(80);
+  long sensor3 =  cs_4_10.capacitiveSensor(80);
+  tentacle1(sensor1);
+  tentacle2(sensor2);
+  tentacle3(sensor3);
   FastLED.show();
   }
  
  
  
- void tentacle1(){ 
+ void tentacle1(long sensor1){ 
    if(sensor1 >= 1000){
-      addYellowGlitter(80,tent1leds );
-      purplepaint(tent1leds);
+      purplepaint1();
+      addYellowGlitter1(80);\7777777
   }
     else 
-      aquapaint(tent1leds); 
+      aquapaint1(); 
     
   }
   
-  void tentacle2(){ 
+void tentacle2(long sensor2){ 
    if(sensor2 >= 1000){
-      addYellowGlitter(80, tent2leds);
-      purplepaint(tent2leds);
+     // addYellowGlitter(80, tent2leds);
+      purplepaint2();
   }
     else 
-      aquapaint(tent2leds); 
+      aquapaint2(); 
     
   }
-  
-   void tentacle3(){ 
+
+   void tentacle3(long sensor3){ 
    if(sensor3 >= 1000){
-      addYellowGlitter(80, tent3leds);
-      purplepaint(tent3leds);
+   //   addYellowGlitter(80, tent3leds);
+      purplepaint3();
   }
     else 
-      aquapaint(tent3leds); 
+      aquapaint3(); 
     
   } 
 
 //////
-void addYellowGlitter( fract8 chanceOfGlitter, int leds) 
+void addYellowGlitter1( fract8 chanceOfGlitter) 
 {
   if( random8() < chanceOfGlitter) {
-    leds[ random16(NUM_LEDS_PER_STRIP) ] += CRGB::Yellow;
+    tent1leds[ random16(NUM_LEDS_PER_STRIP) ] += CRGB::Yellow;
   }
 }
 ////////////
 
-//////
-void addBlueGlitter( fract8 chanceOfGlitter, int leds) 
-{
-  if( random8() < chanceOfGlitter) {
-    leds[ random16(NUM_LEDS_PER_STRIP) ] += CRGB::Blue;
-  }
-}
-////////////
-
-void purplepaint (int leds){
+void purplepaint1 (){
     for( int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
-
-    // First, figure out what 'percentage' of the way along
-    // the strip we are at this particular pixel:
-    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS-1);
-
-    // Now calculate how much of each color we should blend together
-    // at this particular point along the strip.
-    // 0 = pure 'start color', 255 = pure 'end color'
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS_PER_STRIP-1);
     uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
-
-    // Mix up a new color, which is a blend of the start and end colors
-    // Use the blend function to get the right mix for this particular pixel
     CRGB pixelColor = blend( CRGB::Blue, CRGB::Red, amountOfBlending);
-
-    // set this pixel to the blended color:
-    leds[i] = pixelColor;
+    tent1leds[i] = pixelColor;
   }}
 
-void aquapaint (int leds){
+void aquapaint1 (){
     for( int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
-    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS-1);
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS_PER_STRIP-1);
     uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
     CRGB pixelColor = blend( CRGB::Blue, CRGB::Green, amountOfBlending);
-    leds[i] = pixelColor;
+    tent1leds[i] = pixelColor;
   }}
+
+void purplepaint2 (){
+    for( int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS_PER_STRIP-1);
+    uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
+    CRGB pixelColor = blend( CRGB::Blue, CRGB::Red, amountOfBlending);
+    tent2leds[i] = pixelColor;
+  }}
+
+void aquapaint2 (){
+    for( int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS_PER_STRIP-1);
+    uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
+    CRGB pixelColor = blend( CRGB::Blue, CRGB::Green, amountOfBlending);
+    tent2leds[i] = pixelColor;
+  }}
+
+void purplepaint3 (){
+    for( int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS_PER_STRIP-1);
+    uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
+    CRGB pixelColor = blend( CRGB::Blue, CRGB::Red, amountOfBlending);
+    tent3leds[i] = pixelColor;
+  }}
+
+void aquapaint3 (){
+    for( int i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+    float fractionOfTheWayAlongTheStrip = (float)i / (float)(NUM_LEDS_PER_STRIP-1);
+    uint8_t amountOfBlending = fractionOfTheWayAlongTheStrip * 255;
+    CRGB pixelColor = blend( CRGB::Blue, CRGB::Green, amountOfBlending);
+    tent3leds[i] = pixelColor;
+  }}77k
